@@ -1,0 +1,65 @@
+<!doctype html>
+<link rel="import" href="../polymer/polymer.html">
+
+
+<!--
+Lister view
+-->
+<dom-module id="my-lister">
+
+	<template>
+
+		<style>
+			a {
+				display: block;
+				padding: 16px;
+				background: lightblue;
+				margin-bottom: 8px;
+				cursor: pointer;
+			}
+		</style>
+
+		<a href="#detail/1" on-tap="openDetail_1">
+			Open detail page 1
+		</a>
+		<a href="#detail/2" on-tap="openDetail_2">
+			Open detail page 2
+		</a>
+		<a href="#detail/3" on-tap="openDetail_3">
+			Open detail page 3
+		</a>
+
+	</template>
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'my-lister',
+
+		openDetail_1: function(e) {
+			this.openDetailPage(1, e);
+		},
+		openDetail_2: function(e) {
+			this.openDetailPage(2, e);
+		},
+		openDetail_3: function(e) {
+			this.openDetailPage(3, e);
+		},
+
+		openDetailPage: function(pageNr, e) {
+			// Prevent the browser from executing the anchor click
+			e.preventDefault();
+
+			this.fire('request-change-page', {
+				path: 'detail/' + pageNr,
+				animation: 'forward',
+			});
+		},
+	});
+
+})();
+
+</script>

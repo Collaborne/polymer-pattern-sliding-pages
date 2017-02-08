@@ -1,0 +1,152 @@
+<!doctype html>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-route/app-location.html">
+<link rel="import" href="../app-route/app-route.html">
+<link rel="import" href="../app-route/app-route-converter.html">
+<link rel="import" href="../neon-animation/neon-animated-pages.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
+<link rel="import" href="my-detail.html">
+<link rel="import" href="my-lister.html">
+
+<!--
+App wrapper
+
+@demo demo/index.html
+-->
+<dom-module id="sliding-page-app">
+
+	<template>
+
+		<style>
+			:host {
+				@apply(--layout-fit);
+				@apply(--layout-vertical);
+			}
+
+			.pages {
+				@apply(--layout-flex);
+				@apply(--layout-vertical);
+			}
+
+			.pages > * {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<app-location route="{{_route}}" use-hash-as-path></app-location>
+		<app-route-converter path="{{_path}}" route="{{_route}}"></app-route-converter>
+		<app-route route="[[_route]]" pattern=":page" data="{{_data}}" tail="{{_tail}}"></app-route>
+
+		<neon-animated-pages
+			class="pages"
+			attr-for-selected="id"
+			selected="{{_page}}"
+			fallback-selection="lister"
+			entry-animation="[[_entryAnimation]]"
+			exit-animation="[[_exitAnimation]]"
+			on-neon-animation-finish="_onPageAnimationFinish">
+			<my-lister id="lister"></my-lister>
+			<my-detail id="detail" route="[[_pageTail]]"></my-detail>
+		</neon-animated-pages>
+	</template>
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'sliding-page-app',
+		properties: {
+			_page: {
+				type: String,
+				value: 'lister'
+			},
+
+			/**
+			 * Deduplicate reported changes to page. An observer listening direclty
+			 * to `_data.page` would be called multiple times for the same value.
+			 */
+			_dedupDataPage: {
+				type: String,
+				computed: '_return(_data.page)',
+				observer: '_onPageChanged',
+			}
+		},
+
+		listeners: {
+			'request-change-page': '_onRequestChangePage',
+			'open-post-dialog': '_onOpenPostDialog',
+		},
+
+		/**
+		 * Route changes can't be declarative mapped because we need to ensure
+		 * that the animation direction is set before the page changes
+		 */
+		_onRequestChangePage: function(e) {
+			this._setPageAnimation(e.detail.animation);
+			this._source = this._page;
+			this._path = e.detail.path;
+		},
+
+		_onPageChanged: function(page) {
+			// Wait until `<app-route>`` set `page` and `tail`
+			this.async(() => {
+				let preparePromise;
+				const newPageEl = this.$[page];
+				if (newPageEl && newPageEl.prepareTransition) {
+					preparePromise = newPageEl.prepareTransition(this._tail);
+				} else {
+					preparePromise = Promise.resolve();
+				}
+
+				// Wait until animation properties are set
+				// Mobile Safari requires to wait for a bit (instead of just `this.async`)
+				preparePromise.then(() => {
+					// Ignore transitions without an animation
+					const pageTransition = Boolean(this._entryAnimation) || Boolean(this._exitAnimation);
+					this._page = page;
+
+					if (!pageTransition) {
+						// Explicitely call handling of post-animation if there is no animation
+						this._onPageAnimationFinish();
+					}
+				});
+			});
+		},
+
+		/**
+		 * Only pass data to the theme page once the page animation is finished
+		 * (to avoid slowing down the animation)
+		 */
+		_onPageAnimationFinish: function() {
+			this._pageTail = this._tail;
+
+			// Remove transition configuration (in case user uses back button)
+			this._setPageAnimation(null);
+		},
+		_setPageAnimation: function(direction) {
+			switch (direction) {
+				case 'forward':
+					this._entryAnimation = 'slide-from-right-animation';
+					this._exitAnimation = 'slide-left-animation';
+					break;
+				case 'backward':
+					this._entryAnimation = 'slide-from-left-animation';
+					this._exitAnimation = 'slide-right-animation';
+					break;
+				default:
+					this._entryAnimation = null;
+					this._exitAnimation = null;
+					break;
+			}
+		},
+
+		_return: function(value) {
+			return value;
+		},
+	});
+
+})();
+
+</script>

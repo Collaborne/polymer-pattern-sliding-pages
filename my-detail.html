@@ -1,0 +1,104 @@
+<!doctype html>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-route/app-route.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+
+
+<!--
+Detail view
+-->
+<dom-module id="my-detail">
+
+	<template>
+
+		<style>
+			.title,.placeholder {
+				font-weight: bold;
+				font-size: 24px;
+				padding: 16px;
+				height: 40px;
+				line-height: 40px;
+			}
+
+			.title {
+				background: lightblue;
+			}
+
+			.placeholder {
+				background: lightgrey;
+			}
+
+			:host[in-transition] .title,.placeholder {
+				display: none;
+			}
+
+			:host[in-transition] .placeholder {
+				display: block;
+			}
+		</style>
+
+		<app-route route="[[route]]" pattern="/:id" data="{{data}}"></app-route>
+		<app-route route="[[prepareRoute]]" pattern="/:id" data="{{prepareData}}"></app-route>
+		<div class="title">
+			<paper-icon-button icon="icons:arrow-back" on-tap="back"></paper-icon-button>
+			Detail [[data.id]]
+		</div>
+		<div class="placeholder">
+			Detail loading...
+		</div>
+
+	</template>
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'my-detail',
+		properties: {
+			route: Object,
+			inTransition: {
+				type: Boolean,
+				value: false,
+				reflectToAttribute: true,
+			},
+		},
+
+		observers: [
+			'onDataChanged(data.id)'
+		],
+
+		back: function(e) {
+			this.fire('request-change-page', {
+				path: 'lister',
+				animation: 'backward',
+			});
+		},
+
+		prepareTransition: function(route) {
+			// Keep this short
+			return new Promise((resolve) => {
+				this.prepareRoute = route;
+				// Wait until route is decomposed
+				this.async(() => {
+					if (this.data.id !== this.prepareData.id) {
+						// Set in transition mode if the ID is going to change
+						this.inTransition = true;
+					}
+
+					resolve();
+				});
+			});
+		},
+
+		onDataChanged: function(data) {
+			// Simulate some loading
+			setTimeout(() => this.inTransition = false, 1000);
+		},
+	});
+
+})();
+
+</script>
