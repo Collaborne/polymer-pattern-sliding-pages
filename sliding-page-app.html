@@ -86,10 +86,10 @@ App wrapper
 
 				preparePromise.then(() => {
 					// Ignore transitions without an animation
-					const pageTransition = Boolean(this._entryAnimation) || Boolean(this._exitAnimation);
+					const hasAnimation = Boolean(this._entryAnimation) || Boolean(this._exitAnimation);
 					this._page = page;
 
-					if (!pageTransition) {
+					if (!hasAnimation) {
 						// Explicitely call handling of post-animation if there is no animation
 						this._onPageAnimationFinish();
 					}
@@ -104,7 +104,7 @@ App wrapper
 		_onPageAnimationFinish: function() {
 			this._pageTail = this._tail;
 
-			// Remove transition configuration (in case user uses back button)
+			// Remove transition configuration (in case user uses browser back button)
 			this._setPageAnimation(null);
 		},
 		_setPageAnimation: function(direction) {
