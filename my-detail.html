@@ -81,7 +81,7 @@ Detail view
 			// Keep this short
 			return new Promise((resolve) => {
 				this.prepareRoute = route;
-				console.log(`${this.data.id} !== ${this.prepareData.id}`);
+
 				// Wait until route is decomposed
 				this.async(() => {
 					if (this.data.id !== this.prepareData.id) {
