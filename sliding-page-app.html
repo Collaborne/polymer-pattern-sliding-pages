@@ -17,22 +17,6 @@ App wrapper
 
 	<template>
 
-		<style>
-			:host {
-				@apply(--layout-fit);
-				@apply(--layout-vertical);
-			}
-
-			.pages {
-				@apply(--layout-flex);
-				@apply(--layout-vertical);
-			}
-
-			.pages > * {
-				@apply(--layout-flex);
-			}
-		</style>
-
 		<app-location route="{{_route}}" use-hash-as-path></app-location>
 		<app-route-converter path="{{_path}}" route="{{_route}}"></app-route-converter>
 		<app-route route="[[_route]]" pattern=":page" data="{{_data}}" tail="{{_tail}}"></app-route>
