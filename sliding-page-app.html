@@ -84,8 +84,6 @@ App wrapper
 					preparePromise = Promise.resolve();
 				}
 
-				// Wait until animation properties are set
-				// Mobile Safari requires to wait for a bit (instead of just `this.async`)
 				preparePromise.then(() => {
 					// Ignore transitions without an animation
 					const pageTransition = Boolean(this._entryAnimation) || Boolean(this._exitAnimation);
