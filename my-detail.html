@@ -67,7 +67,7 @@ Detail view
 		},
 
 		observers: [
-			'onDataChanged(data.id)'
+			'onIdChanged(data.id)'
 		],
 
 		back: function(e) {
@@ -94,7 +94,7 @@ Detail view
 			});
 		},
 
-		onDataChanged: function(id) {
+		onIdChanged: function(id) {
 			if (!id) {
 				// Ignore initialization call
 				return;
